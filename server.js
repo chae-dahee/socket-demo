@@ -1,41 +1,31 @@
 const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
 const cors = require("cors");
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
 app.use(cors());
-app.use("/", function (req, res) {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.listen(8080);
-
-//웹소켓 서버 열기
-const WebSocket = require("ws");
-const socket = new WebSocket.Server({ port: 8081 });
-
-//브로드캐스트
-socket.broadcast = function (data) {
-  socket.clients.forEach(function (client) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(data);
-    }
-  });
-};
-
-//클라이언트가 서버에 연결될때 실행
-socket.on("connection", (ws) => {
+io.on("connection", (socket) => {
   console.log("클라이언트가 연결되었습니다.");
-  clients.push(ws);
 
-  //클라이언트로부터 메시지를 수신했을 때
-  ws.on("message", (message) => {
-    console.log(`수신한 메시지: ${message}`);
-    // ws.send(message);
-    socket.broadcast(JSON.stringify({ message: message }));
+  socket.on("chat message", (msg) => {
+    io.emit("chat message", msg);
+    console.log(`클라이언트에게 받은 메시지: ${msg}`);
   });
 
-  //클라이언트와의 연결이 종료되었을 때
-  ws.on("close", () => {
-    console.log("클라이언트와의 연결이 종료되었습니다.");
+  socket.on("disconnect", () => {
+    console.log("클라이언트가 연결 해제되었습니다.");
   });
+});
+
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+  console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`);
 });

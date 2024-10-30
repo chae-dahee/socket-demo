@@ -1,36 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Socket-demo</title>
+    <title>Socket.io Chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const message = input.value;
+        socket.emit("chat message", message);
+        input.value = "";
+        return false;
+      }
+
+      function disconnect() {
+        socket.disconnect();
+        alert("연결이 해제되었습니다.");
+      }
+
+      socket.on("chat message", function (msg) {
+        const item = document.createElement("li");
+        item.textContent = msg;
+        document.getElementById("messages").appendChild(item);
+        console.log(`서버에게 받은 메시지: ${msg}`);
+      });
+    </script>
   </head>
   <body>
     <h1>웹소켓 클라이언트</h1>
-    <input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
-    <button id="sendButton">전송</button>
-    <h2>메시지</h2>
-    <div id="messageDisplay"></div>
-
-    <script>
-      let socket = new WebSocket("ws://localhost:8081");
-
-      //서버로부터 메시지를 수신했을 때
-      socket.onmessage = (event) => {
-        console.log(`서버로부터 수신한 메시지: ${event.data}`);
-        const messageDisplay = document.getElementById("messageDisplay");
-        const newMessage = document.createElement("p");
-        newMessage.innerText = event.data;
-        messageDisplay.appendChild(newMessage);
-      };
-
-      //전송버튼 클릭 시 메시지를 서버로 전송
-      document.getElementById("sendButton").onclick = () => {
-        const messageInput = document.getElementById("messageInput");
-        const message = messageInput.value;
-        socket.send(message);
-        messageInput.value = ""; //input 초기화
-      };
-    </script>
+    <button onclick="disconnect()">연결 해제</button>
+    <form onsubmit="return sendMessage();">
+      <input id="messageInput" autocomplete="off" /><button>전송</button>
+    </form>
+    <ul id="messages"></ul>
   </body>
 </html>
