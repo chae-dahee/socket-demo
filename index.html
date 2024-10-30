@@ -6,7 +6,11 @@
     <title>Socket.io Chat</title>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      const socket = io();
+      const socket = io(
+        window.location.hostname === "localhost"
+          ? "http://localhost:8080"
+          : "https://socket-demo-ochre.vercel.app"
+      );
 
       function sendMessage() {
         const input = document.getElementById("messageInput");
