@@ -21,7 +21,7 @@
         alert("연결이 해제되었습니다.");
       }
 
-      socket.on("chat message", function (msg) {
+      socket.on("chat message", (msg) => {
         const item = document.createElement("li");
         item.textContent = msg;
         document.getElementById("messages").appendChild(item);

@@ -21,8 +21,8 @@ io.on("connection", (socket) => {
   console.log("클라이언트가 연결되었습니다.");
 
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
     console.log(`클라이언트에게 받은 메시지: ${msg}`);
+    io.emit("chat message", msg);
   });
 
   socket.on("disconnect", () => {
